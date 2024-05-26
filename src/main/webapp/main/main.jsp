@@ -271,7 +271,7 @@
                 <a class="nav-link" href="/user/myPage.jsp">마이페이지</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/cart.jsp">장바구니</a>
+                <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
         <% } %>
       
@@ -359,7 +359,7 @@
                 <a href="/SHOP/user/product.jsp?id=<%= productId %>" class="btn btn-primary">상품 보러가기</a>
             <% } else { %>
                 <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품 수정하기</a>
-                <a href="#" class="btn btn-danger btn-sm">상품 삭제</a>
+                <a href="/SHOP/admin/deleteProduct.jsp?productId=<%= productId %>" class="btn btn-danger btn-sm">상품 삭제</a>
             <% } %>
         </div>
     </div>

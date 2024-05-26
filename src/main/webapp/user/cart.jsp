@@ -10,7 +10,7 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM orders");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM product");
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
@@ -268,10 +268,10 @@
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">
-                <a class="nav-link" href="/user/myPage.jsp">마이페이지</a>
+                <a class="nav-link" href="/SHOP/user/myPage.jsp">마이페이지</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/cart.jsp">장바구니</a>
+                <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
         <% } %>
       
@@ -284,52 +284,41 @@
       </button>
     </div>
   </div>
-  
+  <nav class="navbar navbar-dark bg-dark category-nav">
+            <div class="container">
+                <ul class="navbar-nav flex-row">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SHOP/main/main.jsp">전체</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SHOP/main/up.jsp">상의</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SHOP/main/down.jsp">하의</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SHOP/main/outer.jsp">아우터</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SHOP/main/shoes.jsp">신발</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 </header>
 <div style="margin-top: 20px;"></div>
 <main>
-<div style="margin-top: 20px;"></div>
-	
-<h1 class="text-center">전체 목록</h1>
-<h1 class="text-center" style="border-top: 1px solid black;">&nbsp;</h1>
-<ul class="navbar-nav d-flex justify-content-center flex-row">
- <li class="nav-item me-3">
-        <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체</a>
-    </li>
-    <li class="nav-item me-3">
-        <a class="nav-link" href="/SHOP/admin/orders1.jsp">주문 완료</a>
-    </li>
-    <li class="nav-item me-3">
-        <a class="nav-link" href="/SHOP/admin/orders2.jsp">배송 준비</a>
-    </li>
-    <li class="nav-item me-3">
-        <a class="nav-link" href="/SHOP/admin/orders3.jsp">배송 중</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/SHOP/admin/orders4.jsp">배송 완료</a>
-    </li>
-</ul>
-<main class="container">
-
-   <table class="table">
+<div class="container text-center">
+    <table class="table">
         <thead>
             <tr>
-				<th>주문번호</th>
                 <th>이미지</th>
                 <th>상품명</th>
-                <th>고객명</th>
-                <th>고객번호</th>
                 <th>사이즈</th>
                 <th>수량</th>
-                <th>금액</th>
-                <th>우편번호</th>
-                <th>주소</th>
-                 <th>상세주소</th>
-                <th>주문일자</th>
-                <th>주문상태</th>
+                <th>가격</th>
             </tr>
         </thead>
-
             <tbody>
                <%
                     try {
@@ -337,92 +326,45 @@
                        
                         // 상품 목록 가져오기
                         PreparedStatement stmt = con.prepareStatement(
-                        		"SELECT * FROM orders,customer,product where customer.customer_id = orders.customer_id AND product.product_id = orders.product_id LIMIT ?, ?");
-                        stmt.setInt(1, start);
-                        stmt.setInt(2, recordsPerPage);
+                        		"SELECT * FROM cart,product where cart.customer_id = ? AND product.product_id = cart.product_id");
+                        stmt.setString(1, customer_id);
+                        
                         ResultSet rs = stmt.executeQuery();
 
                         while (rs.next()) {
+                        	String cart_id = rs.getString("cart_id");
                         	String product_image1=rs.getString("product_image1");
                         	String product_name=rs.getString("product_name");
-                        	String customer_name = rs.getString("name");
-                        	String phone = rs.getString("phone");
-                            String order_id = rs.getString("order_id");
-                            String ordercustomer = rs.getString("customer_id");
-                            String product_id = rs.getString("product_id");
-                            String size = rs.getString("size");
-                            String count=rs.getString("count");
-                            double total_price = rs.getDouble("total_price");
-                            String order_date = rs.getString("order_date");
-                            String postcode = rs.getString("postcode");
-                            String address = rs.getString("address");
-                            String address_1 = rs.getString("address_1");
-                            String status = "주문 완료";
-                            status = rs.getString("status");
-                %>
-                <tr>
-					<td> <%= order_id %></td>
-                    <td><img src="<%=product_image1%>" class="card-img-top" alt="..." style="max-width: 100px;"></td>
-                    <td> <%= product_name %></td>
-                    <td> <%= customer_name %></td>
-                    <td> <%= phone %></td>
-                    <td> <%= size %></td>
-                    <td> <%= count %></td>
-                    <td> <%= total_price %></td>
-                    <td> <%= postcode %> </td>
-                    <td> <%= address %> </td>
-                    <td> <%= address_1 %> </td>
-                    <td> <%= order_date %> </td>
-                    <td> <%= status %> </td>
-					<td>
-  					<% if(status.equals("주문 완료")){ %>
-      				<div>
-        				<button type="button" class="btn btn-danger cancel-order-btn" onclick="cancelOrder('<%= order_id %>')">주문취소</button>
-    				</div>
-    				<%}%>
-					</td>
-					<td>
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        </button>
-        	<div class="dropdown-menu" aria-labelledby="statusDropdown">
-            <a class="dropdown-item" href="#" onclick="updateStatus('<%= order_id %>', '주문 완료')">주문 완료</a>
-			<a class="dropdown-item" href="#" onclick="updateStatus('<%= order_id %>', '배송 준비')">배송 준비</a>
-			<a class="dropdown-item" href="#" onclick="updateStatus('<%= order_id %>', '배송 중')">배송 중</a>
-			<a class="dropdown-item" href="#" onclick="updateStatus('<%= order_id %>', '배송 완료')">배송 완료</a>
+                        	String size = rs.getString("size");
+                            int count=rs.getInt("count");
+                            double price=rs.getDouble("price");
+                            double totalprice = count*price;
+                        %>
+                    <tr>
+                    <td><img src="<%= product_image1%>" class="card-img-top" alt="..." style="max-width: 100px;"></td>
+                    <td><%=product_name %></td>
+                    <td><%=size %></td>
+                    <td><%=count%></td>
+                    <td><%=totalprice %>
+                    <td>
+                        <input type="checkbox" class="form-check-input" data-id ="<%=cart_id %>" >
+                    </td>
+                    
 
-        	</div>
-    		</div>
-			</td>
-            </tr>
-            <%}
+            		</tr>
+            		                     	<%}
                         con.close();
                         } catch (Exception e) {
                             System.out.println(e);
                         } %>
             </tbody>
         </table>
-        
-        <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <% if(currentPage > 1) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">이전</a>
-                </li>
-            <% } %>
-            <% for(int i=1; i<=totalPages; i++) { %>
-                <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-            <% if(currentPage < totalPages) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>">다음</a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>
-    </main>
+
+        <div style="margin-top: 20px;">
+            <button class="btn btn-danger" onclick="deleteSelected()">선택 삭제</button>
+            <button class="btn btn-primary" onclick="purchaseSelected()">선택 구매</button>
+        </div>
+        </div>
 </main>
 
 <footer class="text-muted py-5">
@@ -439,45 +381,58 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-function updateStatus(orderId, newStatus) {
-	$.ajax({
-        type: 'POST',
-        url: 'updateStatus_process.jsp',
-        data: {
-        	orderId: orderId,
-        	newStatus: newStatus,
-        },
-        success: function(response) {
-            alert('상태가 업데이트 되었습니다.');
-            location.reload();
-        },
-        error: function(error) {
-            console.log(error);
-            alert('오류가 발생했습니다.');
-        }
-    });
-
-}
-function cancelOrder(orderId) {
-	$.ajax({
-        type: 'POST',
-        url: 'cancelOrder_process.jsp',
-        data: {
-        	orderId: orderId,
-        },
-        success: function(response) {
-            alert('주문이 취소 되었습니다.');
-            location.reload();
-        },
-        error: function(error) {
-            console.log(error);
-            alert('오류가 발생했습니다.');
-        }
-    });
-
-}
-
-</script>
 </body>
+<script>
+function deleteSelected() {
+    const selectedIds = [];
+    $('.form-check-input:checked').each(function() {
+        selectedIds.push($(this).data('id'));
+    });
+
+    if (selectedIds.length === 0) {
+        alert('삭제할 항목을 선택하세요.');
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/SHOP/user/deleteCart_process.jsp',
+        data: { cartIds: selectedIds.join(',') },
+        success: function(response) {
+            alert('선택한 항목이 삭제되었습니다.');
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error);
+            alert('오류가 발생했습니다.');
+        }
+    });
+}
+
+function purchaseSelected() {
+    const selectedIds = [];
+    $('.form-check-input:checked').each(function() {
+        selectedIds.push($(this).data('id'));
+    });
+
+    if (selectedIds.length === 0) {
+        alert('구매할 항목을 선택하세요.');
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/SHOP/user/cart_addOrder_process.jsp',
+        data: { cartIds: selectedIds.join(',') },
+        success: function(response) {
+            alert('선택한 항목을 구매했습니다.');
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error);
+            alert('오류가 발생했습니다.');
+        }
+    });
+}
+</script>
 </html>

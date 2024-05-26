@@ -49,17 +49,17 @@
         } else {
             // 회원가입 실패
         	request.setAttribute("message", "회원가입에 실패하였습니다.");
-        	
+        	 request.getRequestDispatcher("signup.jsp").forward(request, response);
         }
     } catch (Exception e) {
         // 오류 처리
         request.setAttribute("message", "회원가입에 실패하였습니다.");
-        
+        request.getRequestDispatcher("signup.jsp").forward(request, response);
         e.printStackTrace();
     } finally {
         // 연결 해제
         if (pstmt != null) pstmt.close();
         if (conn != null) conn.close();
     }
-    request.getRequestDispatcher("signup.jsp").forward(request, response);
+   
 %>

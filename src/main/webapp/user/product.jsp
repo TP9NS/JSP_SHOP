@@ -316,10 +316,10 @@
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">
-                <a class="nav-link" href="/user/myPage.jsp">마이페이지</a>
+                <a class="nav-link" href="/SHOP/user/myPage.jsp">마이페이지</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/cart.jsp">장바구니</a>
+                <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
         <% } %>
       
