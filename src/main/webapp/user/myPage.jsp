@@ -1,22 +1,63 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, java.util.*, java.text.*" %>
 
+
 <%
-    // 페이지 관련 변수
-    int currentPage = (request.getParameter("page") != null) ? Integer.parseInt(request.getParameter("page")) : 1;
-    int recordsPerPage = 12;
-    int start = currentPage * recordsPerPage - recordsPerPage;
+        String url = "jdbc:mysql://localhost:3306/shop2"; // MySQL 데이터베이스 URL
+        String username = "root"; // MySQL 사용자 이름
+        String password = "psh0811"; // MySQL 비밀번호
+        
+        Connection conn = null;
+        PreparedStatement pstmt1 = null,pstmt2=null;
+        ResultSet rs1 = null,rs2=null;
+		String customerId = (String)session.getAttribute("customer_id");
+        String id = "";
+        String name = "";
+        String email = "";
+        String phone = "";
+        String postcode = "";
+        String address = "";
+        String address_1 = "";
+        String birthday = "";
+       
 
-    Class.forName("com.mysql.jdbc.Driver");
-    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
-    Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM product");
-    countRs.next();
-    int totalRecords = countRs.getInt("total");
-    int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-    
+        try {
+            // MySQL 연결
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(url, username, password);
 
-%>
+            // 상품 정보 가져오기
+            String sql = "SELECT * FROM customer WHERE customer_id = ?";
+            pstmt1 = conn.prepareStatement(sql);
+            pstmt1.setString(1 , customerId );
+
+            rs1 = pstmt1.executeQuery();
+            if (rs1.next()) {
+            	id = rs1.getString("id");
+            	name = rs1.getString("name");
+            	phone = rs1.getString("phone");
+            	email= rs1.getString("email");
+            	postcode = rs1.getString("postcode");
+            	address = rs1.getString("address");
+            	address_1 = rs1.getString("address_1");
+            	birthday = rs1.getString("birthdate");
+   
+            }
+            rs1.close();
+        } catch (Exception e) {
+            // 오류 처리
+            e.printStackTrace();
+        } finally {
+            // 연결 해제
+            try {
+                if (rs1 != null) rs1.close();
+                if (pstmt1 != null) pstmt1.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    %>
 
 
 <!DOCTYPE html>
@@ -153,7 +194,6 @@
 .btn-sm {
         font-size: 0.8rem; /* 원하는 폰트 크기로 조절하세요 */
     }
-    
     </style>
 
     
@@ -269,7 +309,7 @@
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">
-                <a class="nav-link" href="/SHOP/user/myPage.jsp">마이페이지</a>
+                <a class="nav-link" href="/user/myPage.jsp">마이페이지</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
@@ -304,102 +344,158 @@
                         <a class="nav-link" href="/SHOP/main/shoes.jsp">신발</a>
                     </li>
                 </ul>
-                <form class="d-flex" method="get" action="/SHOP/user/searchResults.jsp">
-            <input class="form-control me-2" type="search" placeholder="검색" aria-label="Search" name="query">
-            <button class="btn btn-outline-success" type="submit">검색</button>
-        </form>
             </div>
         </nav>
 </header>
 <div style="margin-top: 20px;"></div>
-<main>
-    <section class="py-5 text-center container">
-        <div class="row py-lg-5">
-            <div class="col-lg-6 col-md-8 mx-auto">
-                <h1 class="fw-light">많은 회사들과 협약을 맺어 인터넷 최저가로 모시겠습니다.</h1>
-                <p class="lead text-muted">안양마켓에서 여러분의 코디를 완성해보세요.</p>
+
+<h1 class="text-center">내정보</h1>
+<h1 class="text-center" style="border-top: 1px solid black;">&nbsp;</h1>
+	<div class="row">
+        <div class="col-md-6 offset-md-3">
+            <table class="table">
+            
+                <tbody>
+                    <tr>
+                        <th>아이디</th>
+                        <td><%= id %></td>
+                    </tr>
+                     <tr>
+                        <th>이름</th>
+                        <td><%= name %></td>
+                    </tr>
+                    <tr>
+                        <th>이메일</th>
+                        <td><%= email %></td>
+                    </tr>
+                    <tr>
+                        <th>핸드폰</th>
+                        <td><%= phone %></td>
+                    </tr>
+                    <tr>
+                        <th>우편번호</th>
+                        <td><%= postcode %></td>
+                    </tr>
+                    <tr>
+                        <th>주소</th>
+                        <td><%= address %></td>
+                        <td>
+       						 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addressModal">
+            						주소 변경
+       					 </button>
+       					 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    						<div class="modal-dialog">
+      						  <div class="modal-content">
+           						 <div class="modal-header">
+               						 <h5 class="modal-title" id="addressModalLabel">주소 변경</h5>
+                						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            			</div>
+            		<div class="modal-body">
+                		<input type="text" id="sample6_postcode" placeholder="우편번호" class="form-control mb-2">
+                		<input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기" class="btn btn-secondary mb-2">
+               			 <input type="text" id="sample6_address" placeholder="주소" class="form-control mb-2">
+               			 <input type="text" id="sample6_detailAddress" placeholder="상세주소" class="form-control mb-2">
+               			 <input type="text" id="sample6_extraAddress" placeholder="참고항목" class="form-control">
+        		    </div>	
+          	  <div class="modal-footer">
+                	<button type="button" class="btn btn-primary" onclick="saveAddress()">저장</button>
+               		 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
             </div>
         </div>
-    </section>
+    </div>
+</div>
+   					 </td>
+                    </tr>
+                    <tr>
+                        <th>상세주소</th>
+                        <td><%= address_1 %></td>
+                    </tr>
+                    <tr>
+                        <th>생일</th>
+                        <td><%= birthday %></td>
+                    </tr>
+                    <!-- 추가 필요한 정보들을 위와 같은 방식으로 추가 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <div class="album py-5 bg-light">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-sm-4 row-cols-md-4">
-                <%@ page import="java.text.*" %>
-                <%
-    // 상품 구매하기 버튼을 숨길지 여부를 결정하기 위한 변수
-    			boolean hideBuyButton = false;
+<h1 class="text-center">구매목록</h1>
+<h1 class="text-center" style="border-top: 1px solid black;">&nbsp;</h1>
+<main class="container">
 
-    // permission이 1일 때 상품 구매하기 버튼을 숨김
-   				 if (permission != null && permission.equals("1")) {
-       			 hideBuyButton = true;
-   			 	}
-				%>
-                <% 
+   <table class="table">
+        <thead>
+            <tr>
+				<th>주문번호</th>
+                <th>이미지</th>
+                <th>상품명</th>
+                <th>수량</th>
+                <th>금액</th>
+                <th>우편번호</th>
+                <th>주소</th>
+                <th>상세주소</th>
+                <th>주문일자</th>
+                <th>주문상태</th>
+            </tr>
+        </thead>
+         </thead>
+            <tbody>
+                 <%
                     try {
                         Class.forName("com.mysql.jdbc.Driver");
-                       
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
                         // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product LIMIT ?, ?");
-                        stmt.setInt(1, start);
-                        stmt.setInt(2, recordsPerPage);
-                        ResultSet rs = stmt.executeQuery();
+                        PreparedStatement stmt2 = con.prepareStatement(
+                        		"SELECT * FROM orders,product where orders.customer_id = ? AND product.product_id = orders.product_id");
+                        stmt2.setString(1, customer_id);
+                        
+                        rs2 = stmt2.executeQuery();
 
-                        while (rs.next()) {
-                            String productName = rs.getString("product_name");
-                            String productDescription = rs.getString("product_description");
-                            String productImage = rs.getString("product_image1");
-                            String productId = rs.getString("product_id");
-                            double productPrice = rs.getDouble("price");
+                        while (rs2.next()) {
+                        	String product_image1=rs2.getString("product_image1");
+                        	String product_name=rs2.getString("product_name");
+                        	
+                            String order_id = rs2.getString("order_id");
+                            String ordercustomer = rs2.getString("customer_id");
+                            String product_id = rs2.getString("product_id");
+                            String size = rs2.getString("size");
+                            int count=rs2.getInt("count");
+                            double total_price = rs2.getDouble("total_price");
+                            String order_date = rs2.getString("order_date");
+                            String Opostcode = rs2.getString("postcode");
+                            String Oaddress = rs2.getString("address");
+                            String Oaddress_1 = rs2.getString("address_1");
+                            String status = "주문 완료";
+                            status = rs2.getString("status");
                 %>
-                <div class="col">
-    <div class="card shadow-sm">
-    <img src="<%= productImage %>" alt="<%= productName %>" width="100%" height="225">
-    <div class="card-body">
-        <p class="card-title"><%= productName %></p>
-        <p class="card-description"><%= productDescription %></p>
-        <div class="d-flex justify-content-between align-items-center">
-            <p class="card-text">가격 : <%= productPrice %></p>
-            <% if (!hideBuyButton) { %>
-                <a href="/SHOP/user/product.jsp?id=<%= productId %>" class="btn btn-primary">상품 보러가기</a>
-            <% } else { %>
-                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품 수정하기</a>
-                <a href="/SHOP/admin/deleteProduct.jsp?productId=<%= productId %>" class="btn btn-danger btn-sm">상품 삭제</a>
-            <% } %>
-        </div>
-    </div>
-</div>
-</div>
-<% 
-        }
-        con.close();
-    } catch (Exception e) {
-        System.out.println(e);
-    }
-%>
-        </div>
-    </div>
+                <tr>
+					<td><%= order_id %></td>
+                    <td><img src="<%= product_image1 %>" class="card-img-top" alt="..." style="max-width: 100px;"></td>
+                    <td><%= product_name %></td>
+                    <td><%= count %></td>
+                    <td><%= total_price %></td>
+                    <td><%= Opostcode %></td>
+                    <td><%= Oaddress %></td>
+                    <td><%= Oaddress_1 %></td>
+                    <td><%= order_date%></td>
+                    <td><%= status %></td>
+					<td>
+					<%if(status.equals("주문 완료")){ %>
+    				<div>
+        				<button type="button" class="btn btn-danger cancel-order-btn" onclick="cancelOrder('<%= order_id %>')">주문취소</button>
+    				</div>
+					</td>
+                    <%} %>
+                </tr>
+                       <%}
+                        con.close();
+                        } catch (Exception e) {
+                            System.out.println(e);
+                        } %>
+            </tbody>
+        </table>
 
-    <!-- 페이징 네비게이션 -->
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <% if(currentPage > 1) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">이전</a>
-                </li>
-            <% } %>
-            <% for(int i=1; i<=totalPages; i++) { %>
-                <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-            <% if(currentPage < totalPages) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>">다음</a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>
 </main>
 
 <footer class="text-muted py-5">
@@ -415,6 +511,82 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+function cancelOrder(orderId) {
+	$.ajax({
+        type: 'POST',
+        url: '/SHOP/admin/cancelOrder_process.jsp',
+        data: {
+        	orderId: orderId,
+        },
+        success: function(response) {
+            alert('환불이 완료 되었습니다.');
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error);
+            alert('오류가 발생했습니다.');
+        }
+    });
 
+}
+function sample6_execDaumPostcode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            var addr = ''; // 주소 변수
+            var extraAddr = ''; // 참고항목 변수
+
+            if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                addr = data.roadAddress;
+            } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                addr = data.jibunAddress;
+            }
+
+            if(data.userSelectedType === 'R'){
+                if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                    extraAddr += data.bname;
+                }
+                if(data.buildingName !== '' && data.apartment === 'Y'){
+                    extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                extraAddr = (extraAddr !== '' ? ' (' + extraAddr + ')' : '');
+            }
+
+            document.getElementById('sample6_postcode').value = data.zonecode;
+            document.getElementById('sample6_address').value = addr;
+            document.getElementById('sample6_extraAddress').value = extraAddr;
+            document.getElementById('sample6_detailAddress').focus();
+        }
+    }).open();
+}
+function saveAddress() {
+    var postcode = document.getElementById('sample6_postcode').value;
+    var address = document.getElementById('sample6_address').value;
+    var detailAddress = document.getElementById('sample6_detailAddress').value;
+    var extraAddress = document.getElementById('sample6_extraAddress').value;
+
+    // AJAX 요청
+    $.ajax({
+        url: 'changeAddress_process.jsp', // 요청을 보낼 서버의 URL 주소
+        type: 'POST', // HTTP 요청 방식(GET, POST)
+        data: { // HTTP 요청과 함께 서버로 보낼 데이터
+            postcode: postcode,
+            address: address,
+            detailAddress: detailAddress,
+            extraAddress: extraAddress
+        },
+        success: function(response) { // 서버로부터 응답을 받으면 호출될 콜백 함수
+            alert('주소가 성공적으로 변경되었습니다.');
+            window.location.reload(); // 페이지를 리로드
+        },
+        error: function(xhr, status, error) { // HTTP 요청 중 오류가 발생했을 때 호출될 콜백 함수
+            alert('주소 변경에 실패했습니다: ' + error);
+        }
+    });
+}
+</script>
+</script>
 </body>
 </html>

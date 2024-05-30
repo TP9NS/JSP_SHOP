@@ -2,6 +2,7 @@
 <%@ page import="java.sql.*, java.util.*, java.text.*" %>
 
 <%
+	String search = request.getParameter("query");
     // 페이지 관련 변수
     int currentPage = (request.getParameter("page") != null) ? Integer.parseInt(request.getParameter("page")) : 1;
     int recordsPerPage = 12;
@@ -10,7 +11,8 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM product");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM product Where product_name like '%"+search+"%'");
+    
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
@@ -338,11 +340,12 @@
                 <% 
                     try {
                         Class.forName("com.mysql.jdbc.Driver");
-                       
+                        String searchTerm = "%" + search + "%";
                         // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product LIMIT ?, ?");
-                        stmt.setInt(1, start);
-                        stmt.setInt(2, recordsPerPage);
+                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product where product_name like ? LIMIT ?, ?");
+                        stmt.setString(1,searchTerm);
+                        stmt.setInt(2, start);
+                        stmt.setInt(3, recordsPerPage);
                         ResultSet rs = stmt.executeQuery();
 
                         while (rs.next()) {
