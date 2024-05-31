@@ -421,8 +421,9 @@
     </div>
     <button id="addToCartButton" class="btn btn-primary">장바구니</button>
     <button id="purchaseButton" class="btn btn-success">구매하기</button>
-
+	<button id="questionButton" class="btn btn-info">문의하기</button>
     </div>
+	
     <div style="margin-top: 20px;"></div>
      <h1 class="text-center" style="border-top: 1px solid black;">&nbsp;</h1>
         <h1 class="text-center">제품 사진</h1>
@@ -641,7 +642,19 @@ $(document).ready(function() {
         });
     });
 });
+document.getElementById('questionButton').addEventListener('click', function() {
+    var customerId = '<%= customer_id %>';
+    var productId = '<%= productid %>';
+    var productImage = '<%= productImage1 %>';
+    var productName = '<%= productName %>';
 
+    var queryString = 'customerId=' + encodeURIComponent(customerId) +
+                      '&productId=' + encodeURIComponent(productId) +
+                      '&productImage=' + encodeURIComponent(productImage) +
+                      '&productName=' + encodeURIComponent(productName);
+
+    window.location.href = 'addQuestion.jsp?' + queryString;
+});
 function editReview(reviewId) {
     const newTitle = prompt('수정할 리뷰 제목을 입력하세요.');
     if (newTitle !== null) {

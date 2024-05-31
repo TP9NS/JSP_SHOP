@@ -265,6 +265,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">

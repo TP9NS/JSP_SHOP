@@ -27,22 +27,13 @@
             background-color: white;
         }
 
-        /* 아이디, 이메일 입력 칸 */
-        .signup-container input[type="text"] {
-            width: calc(56% - 1px);
-            padding: 10px;
-            margin: 10px 2px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        /* 변경된 입력 칸 */
-        .signup-container input[type="email"],
+        .signup-container input[type="text"],
         .signup-container input[type="password"],
-        .signup-container input[type="address"],
+        .signup-container input[type="email"],
         .signup-container input[type="num"],
         .signup-container input[type="name"][placeholder="이름"],
-        .signup-container input[type="date"] {
+        .signup-container input[type="date"],
+        .signup-container input[type="address"] {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -50,7 +41,6 @@
             border-radius: 5px;
         }
 
-        /* 중복 확인 버튼 스타일 */
         .signup-container input[type="button"] {
             width: calc(30% - 2px);
             padding: 10px;
@@ -62,7 +52,6 @@
             cursor: pointer;
         }
 
-        /* 도메인 선택 스타일 */
         .signup-container select {
             width: calc(100% - 8px);
             padding: 10px;
@@ -70,7 +59,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-/* 주소 입력 칸 스타일 */
+
         .signup-container #sample6_postcode,
         .signup-container #sample6_address,
         .signup-container #sample6_detailAddress,
@@ -81,18 +70,19 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-		.signup-container #sample6_postcode{
-			width: calc(56% - 1px);
+
+        .signup-container #sample6_postcode {
+            width: calc(56% - 1px);
             padding: 10px;
             margin: 10px 2px;
             border: 1px solid #ccc;
             border-radius: 5px;
-		}
-        /* 우편번호 찾기 버튼 스타일 */
+        }
+
         .signup-container #sample6_postcode + input[type="button"] {
             width: calc(30% - 2px);
             margin-top: 10px;
-         	font-size: 10px;
+            font-size: 10px;
         }
 
         .signup-button {
@@ -104,6 +94,18 @@
             background-color: #007bff;
             color: white;
             cursor: pointer;
+        }
+
+        .valid {
+            border-color: green;
+        }
+
+        .invalid {
+            border-color: red;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -122,14 +124,17 @@
         <div class="signup-container">
             <h2>회원가입</h2>
             <div class="button-and-domain">
-                <input id='id' type="text" placeholder="아이디" name="username">
+                <input id='id' type="text" placeholder="아이디" name="username" oninput="validateUsername()">
                 <input type="button" onclick="checkDuplicate()" value="중복 확인">
+                <span id="usernameError" class="hidden" style="color: red;">아이디는 8~16자 영문자와 숫자의 조합이어야 합니다.</span>
             </div>
-            <!-- 변경된 크기 -->
-            <input type="password" placeholder="비밀번호" name="password"><br>
+            <input type="password" placeholder="비밀번호" name="password" id="password" oninput="validatePassword()"><br>
+            <span id="passwordError" class="hidden" style="color: red;">비밀번호는 8~16자에 특수문자가 포함되어야 합니다.</span>
+            <input type="password" placeholder="비밀번호 확인" id="confirmPassword" oninput="validatePasswordMatch()"><br>
+            <span id="passwordMatchError" class="hidden" style="color: red;">비밀번호가 일치하지 않습니다.</span>
             <input type="name" placeholder="이름" name="name"><br>
             <input type="date" name="birthdate"><br>
-            <input type="email" placeholder="이메일" name="email">
+            <input type="email" placeholder="이메일" name="email"><br>
             <input type="num" placeholder="전화번호" name="phone"><br>
             <input type="text" id="sample6_postcode" placeholder="우편번호" name="postcode" >
             <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
@@ -175,6 +180,7 @@
                 }
             }).open();
         }
+
         function checkDuplicate() {
             var id = document.getElementById('id').value;
             
@@ -200,8 +206,49 @@
                 }
             });
         }
-        
-    </script>
 
+        function validateUsername() {
+            var username = document.getElementById('id').value;
+            var regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/;
+            if (regex.test(username)) {
+                document.getElementById('id').classList.remove('invalid');
+                document.getElementById('id').classList.add('valid');
+                document.getElementById('usernameError').classList.add('hidden');
+            } else {
+                document.getElementById('id').classList.remove('valid');
+                document.getElementById('id').classList.add('invalid');
+                document.getElementById('usernameError').classList.remove('hidden');
+            }
+        }
+
+        function validatePassword() {
+            var password = document.getElementById('password').value;
+            var regex = /^(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z\d!@#$%^&*(),.?":{}|<>]{8,16}$/;
+            if (regex.test(password)) {
+                document.getElementById('password').classList.remove('invalid');
+                document.getElementById('password').classList.add('valid');
+                document.getElementById('passwordError').classList.add('hidden');
+            } else {
+                document.getElementById('password').classList.remove('valid');
+                document.getElementById('password').classList.add('invalid');
+                document.getElementById('passwordError').classList.remove('hidden');
+            }
+            validatePasswordMatch();
+        }
+
+        function validatePasswordMatch() {
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+            if (password === confirmPassword && password !== "") {
+                document.getElementById('confirmPassword').classList.remove('invalid');
+                document.getElementById('confirmPassword').classList.add('valid');
+                document.getElementById('passwordMatchError').classList.add('hidden');
+            } else {
+                document.getElementById('confirmPassword').classList.remove('valid');
+                document.getElementById('confirmPassword').classList.add('invalid');
+                document.getElementById('passwordMatchError').classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>

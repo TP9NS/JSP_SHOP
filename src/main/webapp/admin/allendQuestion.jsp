@@ -10,7 +10,7 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM product");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chat GROUP BY classify");
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
@@ -153,7 +153,6 @@
 .btn-sm {
         font-size: 0.8rem; /* 원하는 폰트 크기로 조절하세요 */
     }
-    
     </style>
 
     
@@ -266,19 +265,13 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
-            </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">
-                <a class="nav-link" href="/SHOP/user/myPage.jsp">마이페이지</a>
+                <a class="nav-link" href="/user/myPage.jsp">마이페이지</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
+                <a class="nav-link" href="/user/cart.jsp">장바구니</a>
             </li>
         <% } %>
       
@@ -291,103 +284,92 @@
       </button>
     </div>
   </div>
-  <nav class="navbar navbar-dark bg-dark category-nav">
-            <div class="container">
-                <ul class="navbar-nav flex-row">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SHOP/main/main.jsp">전체</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SHOP/main/up.jsp">상의</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SHOP/main/down.jsp">하의</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SHOP/main/outer.jsp">아우터</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SHOP/main/shoes.jsp">신발</a>
-                    </li>
-                </ul>
-                <form class="d-flex" method="get" action="/SHOP/user/searchResults.jsp">
-            <input class="form-control me-2" type="search" placeholder="검색" aria-label="Search" name="query">
-            <button class="btn btn-outline-success" type="submit">검색</button>
-        </form>
-            </div>
-        </nav>
+  
 </header>
 <div style="margin-top: 20px;"></div>
 <main>
-    <section class="py-5 text-center container">
-        <div class="row py-lg-5">
-            <div class="col-lg-6 col-md-8 mx-auto">
-                <h1 class="fw-light">많은 회사들과 협약을 맺어 인터넷 최저가로 모시겠습니다.</h1>
-                <p class="lead text-muted">안양마켓에서 여러분의 코디를 완성해보세요.</p>
-            </div>
-        </div>
-    </section>
+<div style="margin-top: 20px;"></div>
+	
+<h1 class="text-center">전체 목록</h1>
+<h1 class="text-center" style="border-top: 1px solid black;">&nbsp;</h1>
+<ul class="navbar-nav d-flex justify-content-center flex-row">
+ <li class="nav-item me-3">
+        <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">전체</a>
+    </li>
+    <li class="nav-item me-3">
+        <a class="nav-link" href="/SHOP/admin/allnewQuestion.jsp">새로운 질문</a>
+    </li>
+    <li class="nav-item me-3">
+        <a class="nav-link" href="/SHOP/admin/allanswerQuestion.jsp">답변 완료</a>
+    </li>
+    <li class="nav-item me-3">
+        <a class="nav-link" href="/SHOP/admin/allendQuestion.jsp">답변 종료</a>
+    </li>
+    
+</ul>
+<main class="container">
 
-    <div class="album py-5 bg-light">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-sm-4 row-cols-md-4">
-                <%@ page import="java.text.*" %>
-                <%
-    // 상품 구매하기 버튼을 숨길지 여부를 결정하기 위한 변수
-    			boolean hideBuyButton = false;
+   <table class="table">
+        <thead>
+            <tr>
+				<th>문의 분류</th>
+                <th>이미지</th>
+                <th>상품명</th>
+                <th>고객명</th>
+                <th>고객번호</th>
 
-    // permission이 1일 때 상품 구매하기 버튼을 숨김
-   				 if (permission != null && permission.equals("1")) {
-       			 hideBuyButton = true;
-   			 	}
-				%>
-                <% 
+            </tr>
+        </thead>
+
+            <tbody>
+               <%
                     try {
                         Class.forName("com.mysql.jdbc.Driver");
                        
                         // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product LIMIT ?, ?");
+                        PreparedStatement stmt = con.prepareStatement(
+                        		"SELECT chat.classify,chatstatus.chatstatus, customer.customer_id, customer.name,product.product_id, product.product_image1, product.product_name FROM chat JOIN chatstatus ON chat.classify = chatstatus.classify JOIN customer ON customer.customer_id = chat.customer_id JOIN product ON product.product_id = chat.product_id WHERE chatstatus.chatstatus = '문의가 종료되었습니다.'AND chat.customer_id != 1 GROUP BY chatstatus.chatdate,chat.classify,chatstatus.chatstatus, customer.customer_id, customer.name, product.product_id, product.product_name ORDER BY chatstatus.chatdate LIMIT ?, ?");
                         stmt.setInt(1, start);
                         stmt.setInt(2, recordsPerPage);
                         ResultSet rs = stmt.executeQuery();
 
                         while (rs.next()) {
-                            String productName = rs.getString("product_name");
-                            String productDescription = rs.getString("product_description");
-                            String productImage = rs.getString("product_image1");
-                            String productId = rs.getString("product_id");
-                            double productPrice = rs.getDouble("price");
+                        	String chatstatus = rs.getString("chatstatus");
+                        	String productId= rs.getString("product_id");
+                        	String product_image1=rs.getString("product_image1");
+                        	String product_name=rs.getString("product_name");
+                        	String customer_name = rs.getString("name");
+                        	String classify = rs.getString("classify");
+                            String customerId = rs.getString("customer_id");
+                           
                 %>
-                <div class="col">
-    <div class="card shadow-sm">
-    <img src="<%= productImage %>" alt="<%= productName %>" width="100%" height="225">
-    <div class="card-body">
-        <p class="card-title"><%= productName %></p>
-        <p class="card-description"><%= productDescription %></p>
-        <div class="d-flex justify-content-between align-items-center">
-            <p class="card-text">가격 : <%= productPrice %></p>
-            <% if (!hideBuyButton) { %>
-                <a href="/SHOP/user/product.jsp?id=<%= productId %>" class="btn btn-primary">상품 보러가기</a>
-            <% } else { %>
-                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품 수정하기</a>
-                <a href="/SHOP/admin/deleteProduct.jsp?productId=<%= productId %>" class="btn btn-danger btn-sm">상품 삭제</a>
-            <% } %>
-        </div>
-    </div>
-</div>
-</div>
-<% 
-        }
-        con.close();
-    } catch (Exception e) {
-        System.out.println(e);
-    }
-%>
-        </div>
-    </div>
+                <tr>
+					<td> <%= classify %></td>
+                    <td><img src="<%=product_image1%>" class="card-img-top" alt="..." style="max-width: 100px;"></td>
+                    <td> <%= product_name %></td>
+                    <td> <%= customer_name %></td>
+                    <td> <%= customerId %></td>
+                    <td onclick="location.href='answerQuestion.jsp?customerName=<%=customer_name%>&customerId=<%=customerId%>&productId=<%=productId%>&productImage=<%=product_image1%>&productName=<%=product_name%>'"> <%= chatstatus %> </td>
 
-    <!-- 페이징 네비게이션 -->
-    <nav aria-label="Page navigation example">
+      				<div>
+        				
+    				</div>
+    				<%}%>
+					</td>
+					<td>
+   
+
+      			</td>
+            </tr>
+            			<%
+                        con.close();
+                        } catch (Exception e) {
+                            System.out.println(e);
+                        } %>
+            </tbody>
+        </table>
+        
+        <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             <% if(currentPage > 1) { %>
                 <li class="page-item">
@@ -406,6 +388,7 @@
             <% } %>
         </ul>
     </nav>
+    </main>
 </main>
 
 <footer class="text-muted py-5">
@@ -421,6 +404,46 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+function updateStatus(orderId, newStatus) {
+	$.ajax({
+        type: 'POST',
+        url: 'updateStatus_process.jsp',
+        data: {
+        	orderId: orderId,
+        	newStatus: newStatus,
+        },
+        success: function(response) {
+            alert('상태가 업데이트 되었습니다.');
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error);
+            alert('오류가 발생했습니다.');
+        }
+    });
 
+}
+function cancelOrder(orderId) {
+	$.ajax({
+        type: 'POST',
+        url: 'cancelOrder_process.jsp',
+        data: {
+        	orderId: orderId,
+        },
+        success: function(response) {
+            alert('주문이 취소 되었습니다.');
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error);
+            alert('오류가 발생했습니다.');
+        }
+    });
+
+}
+
+</script>
 </body>
 </html>

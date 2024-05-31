@@ -266,9 +266,6 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
-            </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">
@@ -276,9 +273,6 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
             </li>
         <% } %>
       
@@ -318,95 +312,48 @@
         </nav>
 </header>
 <div style="margin-top: 20px;"></div>
+
 <main>
-    <section class="py-5 text-center container">
-        <div class="row py-lg-5">
-            <div class="col-lg-6 col-md-8 mx-auto">
-                <h1 class="fw-light">많은 회사들과 협약을 맺어 인터넷 최저가로 모시겠습니다.</h1>
-                <p class="lead text-muted">안양마켓에서 여러분의 코디를 완성해보세요.</p>
+	<%
+	String customerId= request.getParameter("customerId");
+	String productId = request.getParameter("productId");
+	String productImage = request.getParameter("productImage");
+	String productName = request.getParameter("productName");
+	%>
+     <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>상품번호</th>
+                    <th>이미지</th>
+                    <th>상품명</th>
+                </tr>
+                <tr>
+                    <td><%= productId %></td>
+                    <td><img src="<%= productImage %>" class="card-img-top" alt="..." style="max-width: 65px;"></td>
+                    <td><%= productName %></td>
+                </tr>
+            </thead>
+        </table>
+        
+        <h1 class="text-center">문의 내역</h1>
+        
+        <!-- 채팅 메시지 표시 영역 -->
+        <div id="chatArea" style="background-color: #f8f9fa; border: 1px solid #dee2e6; min-height: 200px; overflow-y: auto; padding: 10px; margin-bottom: 20px;">
+        </div>
+
+        <!-- 메시지 입력 폼 -->
+        <form id="chatForm">
+            <div class="mb-3">
+                <textarea class="form-control" id="chatMessage" rows="3" placeholder="메시지를 입력하세요"></textarea>
             </div>
-        </div>
-    </section>
-
-    <div class="album py-5 bg-light">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-sm-4 row-cols-md-4">
-                <%@ page import="java.text.*" %>
-                <%
-    // 상품 구매하기 버튼을 숨길지 여부를 결정하기 위한 변수
-    			boolean hideBuyButton = false;
-
-    // permission이 1일 때 상품 구매하기 버튼을 숨김
-   				 if (permission != null && permission.equals("1")) {
-       			 hideBuyButton = true;
-   			 	}
-				%>
-                <% 
-                    try {
-                        Class.forName("com.mysql.jdbc.Driver");
-                       
-                        // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product LIMIT ?, ?");
-                        stmt.setInt(1, start);
-                        stmt.setInt(2, recordsPerPage);
-                        ResultSet rs = stmt.executeQuery();
-
-                        while (rs.next()) {
-                            String productName = rs.getString("product_name");
-                            String productDescription = rs.getString("product_description");
-                            String productImage = rs.getString("product_image1");
-                            String productId = rs.getString("product_id");
-                            double productPrice = rs.getDouble("price");
-                %>
-                <div class="col">
-    <div class="card shadow-sm">
-    <img src="<%= productImage %>" alt="<%= productName %>" width="100%" height="225">
-    <div class="card-body">
-        <p class="card-title"><%= productName %></p>
-        <p class="card-description"><%= productDescription %></p>
-        <div class="d-flex justify-content-between align-items-center">
-            <p class="card-text">가격 : <%= productPrice %></p>
-            <% if (!hideBuyButton) { %>
-                <a href="/SHOP/user/product.jsp?id=<%= productId %>" class="btn btn-primary">상품 보러가기</a>
-            <% } else { %>
-                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품 수정하기</a>
-                <a href="/SHOP/admin/deleteProduct.jsp?productId=<%= productId %>" class="btn btn-danger btn-sm">상품 삭제</a>
-            <% } %>
-        </div>
-    </div>
-</div>
-</div>
-<% 
-        }
-        con.close();
-    } catch (Exception e) {
-        System.out.println(e);
-    }
-%>
-        </div>
+            <button type="button" id="sendMessage" class="btn btn-primary">보내기</button>
+        </form>
     </div>
 
-    <!-- 페이징 네비게이션 -->
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <% if(currentPage > 1) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">이전</a>
-                </li>
-            <% } %>
-            <% for(int i=1; i<=totalPages; i++) { %>
-                <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-            <% if(currentPage < totalPages) { %>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>">다음</a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>
+
 </main>
+
 
 <footer class="text-muted py-5">
   <div class="container">
@@ -421,6 +368,100 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+document.getElementById('sendMessage').addEventListener('click', function() {
+    var customerId = '<%= customerId %>';
+    var productId = '<%= productId %>';
+    var message = document.getElementById('chatMessage').value.trim();
+    if (message) {
+        $.ajax({
+            type: 'POST',
+            url: 'submitMessage.jsp',
+            data: {
+                customerId: customerId,
+                productId: productId,
+                message: message
+            },
+            success: function(response) {
+                if (response.trim() === "success") {
+                    var messageElement = document.createElement('div');
+                    messageElement.textContent = message;
+                    messageElement.style.padding = '10px';
+                    messageElement.style.borderRadius = '5px';
+                    messageElement.style.marginTop = '5px';
+                    messageElement.style.maxWidth = '70%';
 
+                    if (customerId === '1') {
+                        messageElement.style.background = 'lightgreen';
+                        messageElement.style.marginRight = 'auto';
+                        messageElement.style.textAlign = 'left';
+                    } else {
+                        messageElement.style.background = 'lightblue';
+                        messageElement.style.marginLeft = 'auto';
+                        messageElement.style.textAlign = 'right';
+                    }
+
+                    document.getElementById('chatArea').appendChild(messageElement);
+                    document.getElementById('chatMessage').value = '';
+                    document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+                } else {
+                    alert('메시지 전송 실패');
+                }
+            },
+            error: function(error) {
+                console.log(error);
+                alert('오류가 발생했습니다.');
+            }
+        });
+    }
+});
+function fetchMessages() {
+    $.ajax({
+        url: 'fetchMessages.jsp',
+        type: 'GET',
+        data: {productId: '<%= productId %>',
+        	customerId: '<%= customerId%>'
+        	
+        },
+        success: function(response) {
+        	console.log("Response:", response);
+            var messages = response;
+            console.log(messages);
+            var chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = ''; // Clear previous messages
+
+            messages.forEach(function(message) {
+                var messageElement = document.createElement('div');
+                
+                messageElement.style.padding = '10px';
+                messageElement.style.borderRadius = '5px';
+                messageElement.style.marginTop = '5px';
+                messageElement.style.maxWidth = '48%';
+
+                if (message.customerId === '1') { // Admin messages
+                	messageElement.textContent = "관리자 :"+message.message;
+                	messageElement.style.background = 'lightgreen';
+                    messageElement.style.marginRight = 'auto';
+                    messageElement.style.textAlign = 'left';
+                } else { // User messages
+                	messageElement.textContent = "나 :"+message.message;
+                    messageElement.style.background = 'lightblue';
+                    messageElement.style.marginLeft = 'auto';
+                    messageElement.style.textAlign = 'right';
+                }
+
+                chatArea.appendChild(messageElement);
+            });
+            chatArea.scrollTop = chatArea.scrollHeight;
+        },
+        error: function(error) {
+            console.log('Error fetching messages:', error);
+        }
+    });
+}
+
+setInterval(fetchMessages, 1000); // Fetch new messages every 3000 milliseconds (3 seconds)
+</script>
 </body>
 </html>
