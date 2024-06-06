@@ -29,7 +29,7 @@
         conn = DriverManager.getConnection(url, username, password);
 
         // 회원가입 데이터 삽입 쿼리
-        String sql = "INSERT INTO customer (id, password, name, birthdate, email, phone, postcode, address, address_1) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO customer (id, password, name, birthdate, email, phone, postcode, address, address_1,permission) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,3)";
         pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, id);
         pstmt.setString(2, passwd);

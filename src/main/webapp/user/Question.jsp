@@ -6,10 +6,11 @@
     int currentPage = (request.getParameter("page") != null) ? Integer.parseInt(request.getParameter("page")) : 1;
     int recordsPerPage = 12;
     int start = currentPage * recordsPerPage - recordsPerPage;
-
+    PreparedStatement countStmt=null;
+    Connection con =null;
     Class.forName("com.mysql.jdbc.Driver");
-    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
-    PreparedStatement countStmt = con.prepareStatement("SELECT COUNT(*) AS total FROM chat WHERE customer_id = ? GROUP BY classify");
+    con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
+    countStmt = con.prepareStatement("SELECT COUNT(*) AS total FROM chat WHERE customer_id = ? GROUP BY classify");
     countStmt.setString(1,(String)session.getAttribute("customer_id"));
     ResultSet countRs = countStmt.executeQuery();
     countRs.next();
@@ -316,7 +317,8 @@
                         Class.forName("com.mysql.jdbc.Driver");
                        
                         // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement(
+                        PreparedStatement stmt = null;
+                        stmt = con.prepareStatement(
                         		"SELECT chat.classify,chatstatus.chatstatus, customer.customer_id, customer.name,product.product_id, product.product_image1, product.product_name FROM chat JOIN chatstatus ON chat.classify = chatstatus.classify JOIN customer ON customer.customer_id = chat.customer_id JOIN product ON product.product_id = chat.product_id WHERE chat.customer_id = ? AND chat.customer_id != 1 GROUP BY chatstatus.chatdate,chat.classify,chatstatus.chatstatus, customer.customer_id, customer.name, product.product_id, product.product_name ORDER BY chatstatus.chatdate LIMIT ?, ?");
                         stmt.setString(1, customer_id);
                         stmt.setInt(2, start);
@@ -399,43 +401,6 @@
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-function updateStatus(orderId, newStatus) {
-	$.ajax({
-        type: 'POST',
-        url: 'updateStatus_process.jsp',
-        data: {
-        	orderId: orderId,
-        	newStatus: newStatus,
-        },
-        success: function(response) {
-            alert('상태가 업데이트 되었습니다.');
-            location.reload();
-        },
-        error: function(error) {
-            console.log(error);
-            alert('오류가 발생했습니다.');
-        }
-    });
-
-}
-function cancelOrder(orderId) {
-	$.ajax({
-        type: 'POST',
-        url: 'cancelOrder_process.jsp',
-        data: {
-        	orderId: orderId,
-        },
-        success: function(response) {
-            alert('주문이 취소 되었습니다.');
-            location.reload();
-        },
-        error: function(error) {
-            console.log(error);
-            alert('오류가 발생했습니다.');
-        }
-    });
-
-}
 
 </script>
 </body>

@@ -10,7 +10,7 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chat GROUP BY classify");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chatstatus");
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
@@ -258,8 +258,7 @@
     <% } else { %>
         <!-- userId가 null이 아닌 경우(로그인된 경우) -->
         <% if (permission != null && permission.equals("1")) { %>
-            <!-- permission이 3인 경우(관리자) -->
-            <li class="nav-item">
+             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/addProduct.jsp">상품등록하기</a>
             </li>
             <li class="nav-item">
@@ -267,6 +266,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
             </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->

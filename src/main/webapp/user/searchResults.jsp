@@ -276,6 +276,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
+                        <li class="nav-item">
+                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
+            </li>
         <% } %>
       
     <% } %>
@@ -342,10 +345,11 @@
                         Class.forName("com.mysql.jdbc.Driver");
                         String searchTerm = "%" + search + "%";
                         // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product where product_name like ? LIMIT ?, ?");
+                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product where product_name like ? OR manufacturer like ? LIMIT ?, ?");
                         stmt.setString(1,searchTerm);
-                        stmt.setInt(2, start);
-                        stmt.setInt(3, recordsPerPage);
+                        stmt.setString(2,searchTerm);
+                        stmt.setInt(3, start);
+                        stmt.setInt(4, recordsPerPage);
                         ResultSet rs = stmt.executeQuery();
 
                         while (rs.next()) {

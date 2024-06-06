@@ -10,7 +10,7 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chat GROUP BY classify");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chatstatus where chatstatus ='새로운 메시지가 도착하였습니다.ㄴ'");
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);

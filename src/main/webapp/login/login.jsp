@@ -93,8 +93,8 @@
         
 	<input type="submit" value="로그인"class="login-button">
         <div class="search">
-              <a href="#" class="btn btn-primary">아이디 찾기</a>
-              <a href="#" class="btn btn-primary">비밀번호 찾기</a>
+              <a href="findId.jsp" class="btn btn-primary">아이디 찾기</a>
+              <a href="findPasswd.jsp" class="btn btn-primary">비밀번호 찾기</a>
         </div>
     </div>
  </form>

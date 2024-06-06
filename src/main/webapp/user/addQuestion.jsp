@@ -274,6 +274,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
+			<li class="nav-item">
+                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
+            </li>
         <% } %>
       
     <% } %>
@@ -390,7 +393,7 @@ document.getElementById('sendMessage').addEventListener('click', function() {
                     messageElement.style.padding = '10px';
                     messageElement.style.borderRadius = '5px';
                     messageElement.style.marginTop = '5px';
-                    messageElement.style.maxWidth = '70%';
+                    messageElement.style.maxWidth = '48%';
 
                     if (customerId === '1') {
                         messageElement.style.background = 'lightgreen';

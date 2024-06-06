@@ -306,12 +306,17 @@
     <% } else { %>
         <!-- userId가 null이 아닌 경우(로그인된 경우) -->
         <% if (permission != null && permission.equals("1")) { %>
-            <!-- permission이 3인 경우(관리자) -->
             <li class="nav-item">
-                <a class="nav-link" href="/SHOP/admin/productRegister.jsp">상품등록하기</a>
+                <a class="nav-link" href="/SHOP/admin/addProduct.jsp">상품등록하기</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/SHOP/admin/allProducts.jsp">전체상품보기</a>
+                <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
             </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
@@ -320,6 +325,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
+            </li>
+                        <li class="nav-item">
+                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
             </li>
         <% } %>
       
@@ -555,6 +563,10 @@ $(document).ready(function() {
     $('#addToCartButton').click(function() {
         var count = $('#quantityInput').val();
         var size = $('#size_id').val();
+        if (!count || !size) {
+            alert('수량 또는 사이즈를 입력해주세요.');
+            return; // 함수 종료
+        }
         var productId = '<%= productid %>';
         var customerId = '<%= customer_id %>';
 
@@ -614,6 +626,10 @@ $(document).ready(function() {
         
         var count = $('#quantityInput').val();
         var size = $('#size_id').val();
+        if (!count || !size) {
+            alert('수량 또는 사이즈를 입력해주세요.');
+            return; // 함수 종료
+        }
         var productId = '<%= productid %>';
         var customerId = '<%= customer_id %>';
 		var price = count*<%= productPrice%>;
@@ -632,7 +648,7 @@ $(document).ready(function() {
                     alert('구매가 완료되었습니다.');
                     location.reload();
                 } else {
-                    alert('구매에 실패했습니다.');
+                    alert('로그인 시 이용 가능합니다.');
                 }
             },
             error: function(error) {

@@ -10,7 +10,7 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM product");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM customer");
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
@@ -150,9 +150,21 @@
     text-overflow: ellipsis; /* 길이가 초과되는 경우 ...으로 표시 */
     
 }
-.btn-sm {
+	.btn-sm {
         font-size: 0.8rem; /* 원하는 폰트 크기로 조절하세요 */
     }
+     .search-form {
+            max-width: 400px; /* 검색 폼의 최대 너비 설정 */
+            margin: 0 auto; /* 중앙 정렬 */
+        }
+        .form-control {
+            height: calc(1.5em + .75rem + 2px); /* 높이 조정 */
+            font-size: 0.875rem; /* 폰트 크기 조정 */
+        }
+        .btn-outline-success {
+            height: calc(1.5em + .75rem + 2px); /* 높이 조정 */
+            font-size: 0.875rem; /* 폰트 크기 조정 */
+        }
     </style>
 
     
@@ -258,12 +270,17 @@
     <% } else { %>
         <!-- userId가 null이 아닌 경우(로그인된 경우) -->
         <% if (permission != null && permission.equals("1")) { %>
-            <!-- permission이 3인 경우(관리자) -->
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/addProduct.jsp">상품등록하기</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
             </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
@@ -273,7 +290,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
-                        <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
             </li>
         <% } %>
@@ -306,68 +323,105 @@
                         <a class="nav-link" href="/SHOP/main/shoes.jsp">신발</a>
                     </li>
                 </ul>
+               
             </div>
         </nav>
 </header>
 <div style="margin-top: 20px;"></div>
 <main>
-<div class="container text-center">
-    <table class="table">
-        <thead>
+        <h1 class="text-center">회원 관리</h1>
+    <form class="d-flex search-form" method="get" action="/SHOP/admin/searchCustomer.jsp">
+        <input class="form-control me-2" type="search" placeholder="검색" aria-label="Search" name="query">
+        <button class="btn btn-outline-success" type="submit">검색</button>
+    </form>
+<div style="margin-top: 20px;"></div>
+<div class="row">
+        <div class="col-md-6 offset-md-3">
+            <table class="table">
+            <thead>
             <tr>
-                <th>이미지</th>
-                <th>상품명</th>
-                <th>사이즈</th>
-                <th>수량</th>
-                <th>가격</th>
+				<th>고객번호</th>
+                <th>아이디</th>
+                <th>비밀번호</th>
+                <th>전화번호</th>
+                <th>이름</th>
+                <th>생일</th>
+                <th>메일</th>
+                <th>우편번호</th>
+                <th>주소</th>
+                 <th>상세주소</th>
             </tr>
-        </thead>
-            <tbody>
-               <%
+        	</thead>
+                <%
                     try {
                         Class.forName("com.mysql.jdbc.Driver");
                        
                         // 상품 목록 가져오기
                         PreparedStatement stmt = con.prepareStatement(
-                        		"SELECT * FROM cart,product where cart.customer_id = ? AND product.product_id = cart.product_id");
-                        stmt.setString(1, customer_id);
-                        
+                        		"SELECT * FROM customer LIMIT ?, ?");
+                        stmt.setInt(1, start);
+                        stmt.setInt(2, recordsPerPage);
                         ResultSet rs = stmt.executeQuery();
 
                         while (rs.next()) {
-                        	String cart_id = rs.getString("cart_id");
-                        	String product_image1=rs.getString("product_image1");
-                        	String product_name=rs.getString("product_name");
-                        	String size = rs.getString("size");
-                            int count=rs.getInt("count");
-                            double price=rs.getDouble("price");
-                            double totalprice = count*price;
-                        %>
-                    <tr>
-                    <td><img src="<%= product_image1%>" class="card-img-top" alt="..." style="max-width: 100px;"></td>
-                    <td><%=product_name %></td>
-                    <td><%=size %></td>
-                    <td><%=count%></td>
-                    <td><%=totalprice %>
-                    <td>
-                        <input type="checkbox" class="form-check-input" data-id ="<%=cart_id %>" >
-                    </td>
-                    
-
-            		</tr>
-            		                     	<%}
+                        	String customerId=rs.getString("customer_id");
+                        	String id=rs.getString("id");
+                        	String password = rs.getString("password");
+                        	String phone = rs.getString("phone");
+                            String name = rs.getString("name");
+                            String birthdate = rs.getString("birthdate");
+                            String email = rs.getString("email");
+         
+                            String postcode = rs.getString("postcode");
+                            String address = rs.getString("address");
+                            String address_1 = rs.getString("address_1");
+                %>
+                <tr>
+					<td> <%= customerId %></td>
+                    <td> <%=id%></td>
+                    <td> <%= password %></td>
+                    <td> <%= phone %></td>
+                    <td> <%= name %></td>
+                    <td> <%= birthdate %></td>
+                    <td> <%= email %></td>
+                    <td> <%= postcode %> </td>
+                    <td> <%= address %> </td>
+                    <td> <%= address_1 %> </td>
+					<td>
+					<div>
+        				<button type="button" class="btn btn-danger cancel-order-btn" onclick="deleteCustomer('<%= customerId %>')">회원 삭제</button>
+    				</div>
+					</td>
+   		         </tr>
+            <%}
                         con.close();
                         } catch (Exception e) {
                             System.out.println(e);
                         } %>
             </tbody>
-        </table>
+            </table>
+        </div>
+    </div>
 
-        <div style="margin-top: 20px;">
-            <button class="btn btn-danger" onclick="deleteSelected()">선택 삭제</button>
-            <button class="btn btn-primary" onclick="purchaseSelected()">선택 구매</button>
-        </div>
-        </div>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <% if(currentPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">이전</a>
+                </li>
+            <% } %>
+            <% for(int i=1; i<=totalPages; i++) { %>
+                <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
+                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+            <% if(currentPage < totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %>">다음</a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
 </main>
 
 <footer class="text-muted py-5">
@@ -384,25 +438,16 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-</body>
 <script>
-function deleteSelected() {
-    const selectedIds = [];
-    $('.form-check-input:checked').each(function() {
-        selectedIds.push($(this).data('id'));
-    });
-
-    if (selectedIds.length === 0) {
-        alert('삭제할 항목을 선택하세요.');
-        return;
-    }
-
-    $.ajax({
+function deleteCustomer(customerId) {
+	$.ajax({
         type: 'POST',
-        url: '/SHOP/user/deleteCart_process.jsp',
-        data: { cartIds: selectedIds.join(',') },
+        url: 'deleteCustomer_process.jsp',
+        data: {
+        	customerId: customerId,
+        },
         success: function(response) {
-            alert('선택한 항목이 삭제되었습니다.');
+            alert('회원이 탈퇴 처리 되었습니다.');
             location.reload();
         },
         error: function(error) {
@@ -410,32 +455,8 @@ function deleteSelected() {
             alert('오류가 발생했습니다.');
         }
     });
-}
 
-function purchaseSelected() {
-    const selectedIds = [];
-    $('.form-check-input:checked').each(function() {
-        selectedIds.push($(this).data('id'));
-    });
-
-    if (selectedIds.length === 0) {
-        alert('구매할 항목을 선택하세요.');
-        return;
-    }
-
-    $.ajax({
-        type: 'POST',
-        url: '/SHOP/user/cart_addOrder_process.jsp',
-        data: { cartIds: selectedIds.join(',') },
-        success: function(response) {
-            alert('선택한 항목을 구매했습니다.');
-            location.reload();
-        },
-        error: function(error) {
-            console.log(error);
-            alert('오류가 발생했습니다.');
-        }
-    });
 }
 </script>
+</body>
 </html>

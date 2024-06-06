@@ -258,12 +258,17 @@
     <% } else { %>
         <!-- userId가 null이 아닌 경우(로그인된 경우) -->
         <% if (permission != null && permission.equals("1")) { %>
-            <!-- permission이 3인 경우(관리자) -->
-            <li class="nav-item">
+             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/addProduct.jsp">상품등록하기</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
             </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
@@ -358,8 +363,8 @@
             <% if (!hideBuyButton) { %>
                 <a href="/SHOP/user/product.jsp?id=<%= productId %>" class="btn btn-primary">상품 보러가기</a>
             <% } else { %>
-                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품 수정하기</a>
-                <a href="#" class="btn btn-danger btn-sm">상품 삭제</a>
+                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품수정</a>
+                <a href="#" class="btn btn-danger btn-sm">상품삭제</a>
             <% } %>
         </div>
     </div>

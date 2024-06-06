@@ -269,6 +269,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
+            </li>
         <% } else if (permission != null && permission.equals("3")) { %>
             <!-- permission이 1인 경우(일반 사용자) -->
             <li class="nav-item">
@@ -369,8 +372,8 @@
             <% if (!hideBuyButton) { %>
                 <a href="/SHOP/user/product.jsp?id=<%= productId %>" class="btn btn-primary">상품 보러가기</a>
             <% } else { %>
-                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품 수정하기</a>
-                <a href="/SHOP/admin/deleteProduct.jsp?productId=<%= productId %>" class="btn btn-danger btn-sm">상품 삭제</a>
+                <a href="/SHOP/admin/editProduct.jsp?productId=<%= productId %>" class="btn btn-warning btn-sm">상품수정</a>
+                <a href="#" onclick="confirmDelete('<%= productId %>')" class="btn btn-danger btn-sm">상품삭제</a>
             <% } %>
         </div>
     </div>
@@ -421,6 +424,12 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+<script>
+    function confirmDelete(productId) {
+        if (confirm("정말로 삭제하시겠습니까?")) {
+            window.location.href = '/SHOP/admin/deleteProduct.jsp?productId=' + productId;
+        }
+    }
+</script>
 </body>
 </html>

@@ -314,6 +314,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
+			<li class="nav-item">
+                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
+            </li>
         <% } %>
       
     <% } %>
@@ -417,6 +420,7 @@
                     <!-- 추가 필요한 정보들을 위와 같은 방식으로 추가 -->
                 </tbody>
             </table>
+            <button type="button" class="btn btn-danger" onclick="confirmDelete()">회원탈퇴</button>
         </div>
     </div>
 
@@ -497,7 +501,24 @@
         </table>
 
 </main>
-
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">회원탈퇴 확인</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>정말 탈퇴하시겠습니까? 비밀번호를 입력해주세요.</p>
+                <input type="password" id="deletePassword" class="form-control" placeholder="비밀번호">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="deleteAccount()">탈퇴</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
 <footer class="text-muted py-5">
   <div class="container">
     <p class="float-end mb-1">
@@ -531,6 +552,31 @@ function cancelOrder(orderId) {
         }
     });
 
+}
+function confirmDelete() {
+    $('#deleteAccountModal').modal('show');
+}
+
+function deleteAccount() {
+    var password = $('#deletePassword').val().trim();
+
+    $.ajax({
+        type: 'POST',
+        url: 'deleteAccount_process.jsp',
+        data: { password: password },
+        success: function(response) {
+            if (response.trim() === 'success') {
+                alert('회원탈퇴가 완료되었습니다.');
+                window.location.href = '/SHOP/login/login.jsp';
+            } else {
+                alert('비밀번호가 일치하지 않습니다.');
+            }
+        },
+        error: function(error) {
+            console.log(error);
+            alert('오류가 발생했습니다.');
+        }
+    });
 }
 function sample6_execDaumPostcode() {
     new daum.Postcode({

@@ -261,13 +261,18 @@
       </a>
       <ul class="navbar-nav ms-auto">
     <% if (userId == null) { %>
-        <!-- userId가 null인 경우(로그인되지 않은 경우) -->
-        <li class="nav-item">
-            <a class="nav-link" href="/SHOP/signUp/signup.jsp">회원가입</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/SHOP/login/login.jsp">로그인</a>
-        </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/addProduct.jsp">상품등록하기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
+            </li>
     <% } else { %>
         <!-- userId가 null이 아닌 경우(로그인된 경우) -->
         <% if (permission != null && permission.equals("1")) { %>
@@ -302,57 +307,94 @@
 <div style="margin-top: 20px;"></div>
 
 <main class="container">
-   <div class="product-form">
-            <h2>상품 등록</h2>
+    <div class="product-form">
+        <h2>상품 등록</h2>
 
-            <form action="addProduct_process.jsp" method="post">
-                <label for="productName">상품명:</label>
-                <input type="text" id="productName" name="productName" required>
+        <form id="productForm" action="addProduct_process.jsp" method="post">
+            <label for="productName">상품명:</label>
+            <input type="text" id="productName" name="productName" required>
 
-                <label for="manufacturer">제작사:</label>
-                <input type="text" id="manufacturer" name="manufacturer" required>
+            <label for="manufacturer">제작사:</label>
+            <input type="text" id="manufacturer" name="manufacturer" required>
 
-                <label for="price">가격:</label>
-                <input type="number" id="price" name="price" required>
-				
-                <label for="description">상품설명:</label>
-                <textarea id="description" name="description" required></textarea>
-				<label for="size">사이즈:</label>
-				<select id="size" name="size" required multiple>
-    			<option value="XS">XS</option>
-    			<option value="S">S</option>
-    			<option value="M">M</option>
-    			<option value="L">L</option>
-    			<option value="XL">XL</option>
-    			 <!-- 필요한 만큼 옵션 추가 -->
-				</select>
-                <label for="productImage1">상품사진1:</label>
-                <input type="text" id="productImage1" name="productImage1" required>
-				<label for="productImage2">상품사진2:</label>
-                <input type="text" id="productImage2" name="productImage2" required>
-                <label for="productImage1">상품사진3:</label>
-                <input type="text" id="productImage3" name="productImage3" required>
-                <label for="productImage1">상품사진4:</label>
-                <input type="text" id="productImage4" name="productImage4" required>
-                <!-- 필요한 만큼 사진 필드 추가 -->
+            <label for="price">가격:</label>
+            <input type="number" id="price" name="price" required>
 
-                <label for="category">카테고리:</label>
-				<select id="category" name="category" required>
-    				<option value="상의">상의</option>
-    				<option value="하의">하의</option>
-    				<option value="아우터">아우터</option>
-    				<option value="신발">신발</option>
-    <!-- 필요한 만큼 옵션 추가 -->
-				</select>
+            <label for="description">상품설명:</label>
+            <textarea id="description" name="description" required></textarea>
+            
+            <label for="size">사이즈:</label>
+            <select id="size" name="size" required multiple>
+                <option value="XS">XS</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <!-- 필요한 만큼 옵션 추가 -->
+            </select>
+            
+            <label for="productImage1">상품사진1:</label>
+            <input type="text" id="productImage1" name="productImage1" required>
+            
+            <label for="productImage2">상품사진2:</label>
+            <input type="text" id="productImage2" name="productImage2" required>
+            
+            <label for="productImage3">상품사진3:</label>
+            <input type="text" id="productImage3" name="productImage3" required>
+            
+            <label for="productImage4">상품사진4:</label>
+            <input type="text" id="productImage4" name="productImage4" required>
+            
+            <!-- 필요한 만큼 사진 필드 추가 -->
 
-                <button type="submit">상품 등록</button>
-            </form>
-        </div>
+            <label for="category">카테고리:</label>
+            <select id="category" name="category" required>
+                <option value="상의">상의</option>
+                <option value="하의">하의</option>
+                <option value="아우터">아우터</option>
+                <option value="신발">신발</option>
+                <!-- 필요한 만큼 옵션 추가 -->
+            </select>
 
+            <button type="submit">상품 등록</button>
+        </form>
+    </div>
 </main>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+    document.getElementById('productForm').addEventListener('submit', function(event) {
+        var form = event.target;
+        var isValid = true;
+        var errorMessage = '다음 항목을 확인해주세요: \n';
 
+        // Check each required field
+        form.querySelectorAll('[required]').forEach(function(input) {
+            if (!input.value) {
+                isValid = false;
+                var label = form.querySelector('label[for=' + input.id + ']').innerText;
+                errorMessage += label + '\n';
+            }
+        });
+
+        // Check if at least one size is selected
+        var sizeSelected = false;
+        form.querySelectorAll('#size option').forEach(function(option) {
+            if (option.selected) {
+                sizeSelected = true;
+            }
+        });
+        if (!sizeSelected) {
+            isValid = false;
+            errorMessage += '사이즈를 선택해주세요.\n';
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+            alert(errorMessage);
+        }
+    });
+</script>
 </body>
 </html>

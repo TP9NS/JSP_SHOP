@@ -10,7 +10,7 @@
     Class.forName("com.mysql.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
     Statement countStmt = con.createStatement();
-    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chat GROUP BY classify");
+    ResultSet countRs = countStmt.executeQuery("SELECT COUNT(*) AS total FROM chatstatus where chatstatus ='답변을 하였습니다.'");
     countRs.next();
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
@@ -248,13 +248,18 @@
       </a>
       <ul class="navbar-nav ms-auto">
     <% if (userId == null) { %>
-        <!-- userId가 null인 경우(로그인되지 않은 경우) -->
-        <li class="nav-item">
-            <a class="nav-link" href="/SHOP/signUp/signup.jsp">회원가입</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/SHOP/login/login.jsp">로그인</a>
-        </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/addProduct.jsp">상품등록하기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allOrders.jsp">전체주문보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/allQuestion.jsp">문의내역보기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/SHOP/admin/management.jsp">회원관리</a>
+            </li>
     <% } else { %>
         <!-- userId가 null이 아닌 경우(로그인된 경우) -->
         <% if (permission != null && permission.equals("1")) { %>
