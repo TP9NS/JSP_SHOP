@@ -15,7 +15,15 @@
     int totalRecords = countRs.getInt("total");
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
     
-
+    // 구매가 가장 많은 상위 4개 상품을 조회하는 쿼리
+    String topProductsQuery = "SELECT p.product_id, p.product_name, p.product_image1, COUNT(o.product_id) AS purchaseCount " +
+                              "FROM product p " +
+                              "JOIN orders o ON p.product_id = o.product_id " +
+                              "GROUP BY p.product_id, p.product_name, p.product_image1 " +
+                              "ORDER BY purchaseCount DESC " +
+                              "LIMIT 4";
+    PreparedStatement topProductsStmt = con.prepareStatement(topProductsQuery);
+    ResultSet topProductsRs = topProductsStmt.executeQuery();
 %>
 
 
@@ -47,6 +55,30 @@
 
 
     <style>
+        /* 고정형 배너 스타일 */
+        .fixed-banner {
+            position: sticky;
+            top: 20px;
+            left: 20px;
+            width: 200px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .fixed-banner h4 {
+            text-align: center;
+        }
+
+        .fixed-banner img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
       .bd-placeholder-img {
         font-size: 1.125rem;
         text-anchor: middle;
@@ -217,6 +249,26 @@
         </li>
       </ul>
     </div>
+    <div class="fixed-banner">
+        <h4>인기 상품</h4>
+        <%
+            while (topProductsRs.next()) {
+            	String topProductId = topProductsRs.getString("product_id");
+            	String topProductName = topProductsRs.getString("product_name");
+                String topProductImage = topProductsRs.getString("product_image1");
+        %>
+        <div>
+            <a href="/SHOP/user/product.jsp?id=<%= topProductId %>">
+   		 <img src="<%= topProductImage %>" alt="<%= topProductName %>">
+		</a>
+            <p><%= topProductName %></p>
+        </div>
+        <%
+            }
+            topProductsRs.close();
+            topProductsStmt.close();
+        %>
+    </div>
 
     
 <header data-bs-theme="dark">
@@ -365,21 +417,38 @@
    			 	}
 				%>
                 <% 
-                    try {
-                        Class.forName("com.mysql.jdbc.Driver");
-                       
-                        // 상품 목록 가져오기
-                        PreparedStatement stmt = con.prepareStatement("SELECT * FROM product LIMIT ?, ?");
-                        stmt.setInt(1, start);
-                        stmt.setInt(2, recordsPerPage);
-                        ResultSet rs = stmt.executeQuery();
+                try {
+                    // 상품 목록 가져오기
+                    PreparedStatement stmt = con.prepareStatement("SELECT * FROM product LIMIT ?, ?");
+                    stmt.setInt(1, start);
+                    stmt.setInt(2, recordsPerPage);
+                    ResultSet rs = stmt.executeQuery();
 
-                        while (rs.next()) {
-                            String productName = rs.getString("product_name");
-                            String productDescription = rs.getString("product_description");
-                            String productImage = rs.getString("product_image1");
-                            String productId = rs.getString("product_id");
-                            double productPrice = rs.getDouble("price");
+                    while (rs.next()) {
+                        String productName = rs.getString("product_name");
+                        String productDescription = rs.getString("product_description");
+                        String productImage = rs.getString("product_image1");
+                        String productId = rs.getString("product_id");
+                        double productPrice = rs.getDouble("price");
+
+                        // 후기 수와 구매 수 가져오기
+                        String reviewCountQuery = "SELECT COUNT(*) AS reviewCount FROM review WHERE product_id = ?";
+                        PreparedStatement reviewCountStmt = con.prepareStatement(reviewCountQuery);
+                        reviewCountStmt.setString(1, productId);
+                        ResultSet reviewCountRs = reviewCountStmt.executeQuery();
+                        int reviewCount = 0;
+                        if (reviewCountRs.next()) {
+                            reviewCount = reviewCountRs.getInt("reviewCount");
+                        }
+
+                        String purchaseCountQuery = "SELECT COUNT(*) AS purchaseCount FROM orders WHERE product_id = ?";
+                        PreparedStatement purchaseCountStmt = con.prepareStatement(purchaseCountQuery);
+                        purchaseCountStmt.setString(1, productId);
+                        ResultSet purchaseCountRs = purchaseCountStmt.executeQuery();
+                        int purchaseCount = 0;
+                        if (purchaseCountRs.next()) {
+                            purchaseCount = purchaseCountRs.getInt("purchaseCount");
+                        }
                 %>
                 <div class="col">
     <div class="card shadow-sm">
@@ -396,6 +465,7 @@
                 <a href="#" onclick="confirmDelete('<%= productId %>')" class="btn btn-danger btn-sm">상품삭제</a>
             <% } %>
         </div>
+    	<a4>구매수:<%= purchaseCount %> 후기:<%= reviewCount %> </a4>
     </div>
 </div>
 </div>

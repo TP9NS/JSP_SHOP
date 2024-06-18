@@ -10,7 +10,7 @@
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop", "root", "psh0811");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop2", "root", "psh0811");
 
         String sql = "INSERT INTO review (title, content, product_id, customer_id, created_at) VALUES (?, ?, ?, ?, NOW())";
         pstmt = conn.prepareStatement(sql);
