@@ -153,7 +153,15 @@
 .btn-sm {
         font-size: 0.8rem; /* 원하는 폰트 크기로 조절하세요 */
     }
-    
+            .notification-badge {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 3px 7px;
+            font-size: 0.8rem;
+            vertical-align: top;
+            margin-left: 5px;
+        }
     </style>
 
     
@@ -220,9 +228,17 @@
           <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
           <%
     // 세션에서 userId를 가져옴
+    			int answeredQuestionCount =0;
     			String userId = (String) session.getAttribute("userId");
           		String permission = (String)session.getAttribute("permission");
           		String customer_id = (String)session.getAttribute("customer_id");
+          		Statement countStmt1 = con.createStatement();
+          		if (userId != null && permission != null && permission.equals("3")) {
+          		ResultSet countRs1 = countStmt.executeQuery("SELECT COUNT(*) AS answeredCount FROM chatstatus WHERE classify like '"+customer_id+"/%' AND chatstatus ='답변을 하였습니다.'");
+          		 if (countRs1.next()) {
+                     answeredQuestionCount = countRs1.getInt("answeredCount");
+                 }
+          		}
 		  %>
 			<% if (userId != null) { %>
     			<div>
@@ -280,9 +296,13 @@
             <li class="nav-item">
                 <a class="nav-link" href="/SHOP/user/cart.jsp">장바구니</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기</a>
-            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/SHOP/user/Question.jsp">문의내역보기
+                                    <% if (answeredQuestionCount > 0) { %>
+                                        <span class="notification-badge"><%= answeredQuestionCount %></span>
+                                    <% } %>
+                                </a>
+                            </li>
         <% } %>
       
     <% } %>
